@@ -9,7 +9,6 @@ import pl.zajavka.domain.Salesman;
 import pl.zajavka.domain.exception.NotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -25,12 +24,10 @@ public class SalesmanService {
         return availableSalesmen;
     }
 
+    // TODO nicer way
     @Transactional
     public Salesman findSalesman(String pesel) {
-        Optional<Salesman> salesman = salesmanDAO.findByPesel(pesel);
-        if (salesman.isEmpty()) {
-            throw new NotFoundException("Could not find salesman by pesel: [%s]".formatted(pesel));
-        }
-        return salesman.get();
+        return salesmanDAO.findByPesel(pesel)
+                .orElseThrow(() -> new NotFoundException("Could not find salesman by pesel: [%s]".formatted(pesel)));
     }
 }

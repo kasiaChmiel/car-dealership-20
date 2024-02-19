@@ -9,7 +9,6 @@ import pl.zajavka.domain.Part;
 import pl.zajavka.domain.exception.NotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -18,13 +17,11 @@ public class PartCatalogService {
 
     private final PartDAO partDAO;
 
+    // TODO nicer way
     @Transactional
     public Part findPart(String partSerialNumber) {
-        Optional<Part> part = partDAO.findBySerialNumber(partSerialNumber);
-        if (part.isEmpty()) {
-            throw new NotFoundException("Could not find part by part serial number: [%s]".formatted(partSerialNumber));
-        }
-        return part.get();
+        return partDAO.findBySerialNumber(partSerialNumber)
+                .orElseThrow(() -> new NotFoundException("Could not find part by part serial number: [%s]".formatted(partSerialNumber)));
     }
 
     public List<Part> findAll() {

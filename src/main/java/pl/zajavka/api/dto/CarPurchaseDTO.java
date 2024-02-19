@@ -48,6 +48,7 @@ public class CarPurchaseDTO {
             .build();
     }
 
+    // TODO having methods in your business code which are needed only for tests is a bad pattern.
     public Map<String, String> asMap() {
         Map<String ,String> result = new HashMap<>();
         Optional.ofNullable(customerName).ifPresent(value-> result.put("customerName", value));

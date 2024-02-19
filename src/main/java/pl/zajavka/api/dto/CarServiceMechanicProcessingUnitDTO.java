@@ -18,14 +18,14 @@ public class CarServiceMechanicProcessingUnitDTO {
     private String serviceCode;
     private Integer hours;
     private String mechanicComment;
-    private Boolean done;
+    private boolean isDone;
 
     public static CarServiceMechanicProcessingUnitDTO buildDefault() {
         return CarServiceMechanicProcessingUnitDTO.builder()
             .partQuantity(9)
             .hours(1)
             .mechanicComment("Uff, tough")
-            .done(false)
+            .isDone(false)
             .build();
     }
 }

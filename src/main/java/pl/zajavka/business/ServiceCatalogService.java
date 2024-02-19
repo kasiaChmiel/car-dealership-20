@@ -8,7 +8,6 @@ import pl.zajavka.domain.Service;
 import pl.zajavka.domain.exception.NotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @org.springframework.stereotype.Service
@@ -17,13 +16,11 @@ public class ServiceCatalogService {
 
     private final ServiceDAO serviceDAO;
 
+    // TODO nicer way
     @Transactional
     public Service findService(String serviceCode) {
-        Optional<Service> service = serviceDAO.findByServiceCode(serviceCode);
-        if (service.isEmpty()) {
-            throw new NotFoundException("Could not find service by service code: [%s]".formatted(serviceCode));
-        }
-        return service.get();
+        return serviceDAO.findByServiceCode(serviceCode)
+                .orElseThrow(() -> new NotFoundException("Could not find service by service code: [%s]".formatted(serviceCode)));
     }
 
     public List<Service> findAll() {

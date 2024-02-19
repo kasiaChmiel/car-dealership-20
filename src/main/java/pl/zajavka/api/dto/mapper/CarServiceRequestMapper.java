@@ -22,14 +22,14 @@ public interface CarServiceRequestMapper extends OffsetDateTimeMapper {
                     .surname(dto.getCustomerSurname())
                     .phone(dto.getCustomerPhone())
                     .email(dto.getCustomerEmail())
-                    .address(Address.builder()
+                    .address(Address.builder() // TODO create a separate address mapper instead of this builder
                         .country(dto.getCustomerAddressCountry())
                         .city(dto.getCustomerAddressCity())
                         .postalCode(dto.getCustomerAddressPostalCode())
                         .address(dto.getCustomerAddressStreet())
                         .build())
                     .build())
-                .car(CarToService.builder()
+                .car(CarToService.builder() // TODO create a separate car to service mapper instead of this builder
                     .vin(dto.getCarVin())
                     .brand(dto.getCarBrand())
                     .model(dto.getCarModel())
@@ -39,10 +39,10 @@ public interface CarServiceRequestMapper extends OffsetDateTimeMapper {
                 .build();
         } else {
             return CarServiceRequest.builder()
-                .customer(Customer.builder()
+                .customer(Customer.builder() // TODO create a separate customer mapper instead of this builder
                     .email(dto.getExistingCustomerEmail())
                     .build())
-                .car(CarToService.builder()
+                .car(CarToService.builder()  // TODO create a separate car to service to service mapper instead of this builder
                     .vin(dto.getExistingCarVin())
                     .build())
                 .customerComment(dto.getCustomerComment())

@@ -38,6 +38,9 @@ public class CustomerRepository implements CustomerDAO {
     }
 
     @Override
+    /* TODO This is horrible :P We shouldn't get such a complicated logic in our repository clas... It should be moved into service
+        with @Transactional annotation. Moreover why don't we let JPA to manage customer invoices by setting CascadeType to PERSIST?
+        It will make the whole logic less complicated I guess */
     public void issueInvoice(Customer customer) {
         CustomerEntity customerToSave = customerEntityMapper.mapToEntity(customer);
         CustomerEntity customerSaved = customerJpaRepository.saveAndFlush(customerToSave);

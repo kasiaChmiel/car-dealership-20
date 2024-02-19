@@ -12,8 +12,8 @@ import pl.zajavka.domain.Salesman;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -32,47 +32,41 @@ public class CarPurchaseService {
         return salesmanService.findAvailable();
     }
 
+    // TODO look how I changed this method. There was no reason to duplicate almost the whole logic only because of the customer.
     @Transactional
     public Invoice purchase(final CarPurchaseRequest request) {
-        return request.getExistingCustomerEmail().isBlank()
-            ? processFirstTimeToBuyCustomer(request)
-            : processNextTimeToBuyCustomer(request);
-    }
-
-    private Invoice processFirstTimeToBuyCustomer(CarPurchaseRequest request) {
         CarToBuy car = carService.findCarToBuy(request.getCarVin());
         Salesman salesman = salesmanService.findSalesman(request.getSalesmanPesel());
         Invoice invoice = buildInvoice(car, salesman);
 
-        Customer customer = buildCustomer(request, invoice);
+        Customer customer = findOrCreateCustomer(request);
+        customer.addInvoice(invoice);
+
         customerService.issueInvoice(customer);
+
         return invoice;
     }
 
-    private Invoice processNextTimeToBuyCustomer(CarPurchaseRequest request) {
-        Customer existingCustomer = customerService.findCustomer(request.getExistingCustomerEmail());
-        CarToBuy car = carService.findCarToBuy(request.getCarVin());
-        Salesman salesman = salesmanService.findSalesman(request.getSalesmanPesel());
-        Invoice invoice = buildInvoice(car, salesman);
-        Set<Invoice> existingInvoices = existingCustomer.getInvoices();
-        existingInvoices.add(invoice);
-        customerService.issueInvoice(existingCustomer.withInvoices(existingInvoices));
-        return invoice;
+    private Customer findOrCreateCustomer(CarPurchaseRequest request) {
+        return request.getExistingCustomerEmail().isBlank()
+                ? buildCustomer(request) // TODO I would rename this method: createNewCustomer
+                : customerService.findCustomer(request.getExistingCustomerEmail());
     }
 
-    private Customer buildCustomer(CarPurchaseRequest inputData, Invoice invoice) {
+    // TODO this part can be moved into another service.
+    private Customer buildCustomer(CarPurchaseRequest inputData) {
         return Customer.builder()
             .name(inputData.getCustomerName())
             .surname(inputData.getCustomerSurname())
             .phone(inputData.getCustomerPhone())
             .email(inputData.getCustomerEmail())
-            .address(Address.builder()
+            .address(Address.builder() // TODO this part can be extracted into separate method
                 .country(inputData.getCustomerAddressCountry())
                 .city(inputData.getCustomerAddressCity())
                 .postalCode(inputData.getCustomerAddressPostalCode())
                 .address(inputData.getCustomerAddressStreet())
                 .build())
-            .invoices(Set.of(invoice))
+            .invoices(new HashSet<>())
             .build();
     }
 

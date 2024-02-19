@@ -22,6 +22,7 @@ public class CarService {
     private final CarToBuyDAO carToBuyDAO;
     private final CarToServiceDAO carToServiceDAO;
 
+    // TODO Why do you use Transactional annotations here?
     @Transactional
     public List<CarToBuy> findAvailableCars() {
         List<CarToBuy> availableCars = carToBuyDAO.findAvailable();
@@ -29,13 +30,11 @@ public class CarService {
         return availableCars;
     }
 
+    // TODO better way to throw exception for empty optional
     @Transactional
     public CarToBuy findCarToBuy(String vin) {
-        Optional<CarToBuy> carToBuyByVin = carToBuyDAO.findCarToBuyByVin(vin);
-        if (carToBuyByVin.isEmpty()) {
-            throw new NotFoundException("Could not find car by vin: [%s]".formatted(vin));
-        }
-        return carToBuyByVin.get();
+        return carToBuyDAO.findCarToBuyByVin(vin)
+                .orElseThrow(() -> new NotFoundException("Could not find car by vin: [%s]".formatted(vin)));
     }
 
     @Transactional
@@ -43,14 +42,10 @@ public class CarService {
         return carToServiceDAO.findCarToServiceByVin(vin);
     }
 
+    // TODO such a mapping make this public methods less readable. Always try to extract them to a private method or separate service
     @Transactional
     public CarToService saveCarToService(CarToBuy carToBuy) {
-        CarToService carToService = CarToService.builder()
-            .vin(carToBuy.getVin())
-            .brand(carToBuy.getBrand())
-            .model(carToBuy.getModel())
-            .year(carToBuy.getYear())
-            .build();
+        CarToService carToService = mapToCarToService(carToBuy);
         return carToServiceDAO.saveCarToService(carToService);
     }
 
@@ -67,5 +62,14 @@ public class CarService {
 
     public CarHistory findCarHistoryByVin(String carVin) {
         return carToServiceDAO.findCarHistoryByVin(carVin);
+    }
+
+    private CarToService mapToCarToService(CarToBuy carToBuy) {
+        return CarToService.builder()
+                .vin(carToBuy.getVin())
+                .brand(carToBuy.getBrand())
+                .model(carToBuy.getModel())
+                .year(carToBuy.getYear())
+                .build();
     }
 }

@@ -1,16 +1,13 @@
 package pl.zajavka.domain;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.Value;
-import lombok.With;
+import lombok.*;
 
 import java.time.OffsetDateTime;
 import java.util.Set;
 
 @With
-@Value
+@Getter
+@Setter
 @Builder
 @EqualsAndHashCode(of = "carServiceRequestNumber")
 @ToString(of = {"carServiceRequestId", "carServiceRequestNumber", "receivedDateTime", "completedDateTime", "customerComment"})

@@ -9,7 +9,6 @@ import pl.zajavka.api.dto.CarHistoryDTO;
 import pl.zajavka.api.dto.CarToServiceDTO;
 import pl.zajavka.api.dto.mapper.CarMapper;
 import pl.zajavka.business.CarService;
-import pl.zajavka.domain.CarHistory;
 
 import java.util.Objects;
 
@@ -27,18 +26,30 @@ public class CarHistoryController {
         @RequestParam(value = "carVin", required = false) String carVin,
         Model model
     ) {
-        var allCars = carService.findAllCarsWithHistory().stream().map(carMapper::map).toList();
-        var allCarVins = allCars.stream().map(CarToServiceDTO::getVin).toList();
+        addAllCarsAttributes(model);
+        addCarHistoryAttribute(carVin, model);
+        return "car_history";
+    }
+
+    private void addAllCarsAttributes(Model model) {
+        var allCars = carService.findAllCarsWithHistory()
+                .stream()
+                .map(carMapper::map)
+                .toList();
+        var allCarVins = allCars
+                .stream()
+                .map(CarToServiceDTO::getVin)
+                .toList();
 
         model.addAttribute("allCarDTOs", allCars);
         model.addAttribute("allCarVins", allCarVins);
+    }
 
-        if (Objects.nonNull(carVin)) {
-            CarHistory carHistory = carService.findCarHistoryByVin(carVin);
-            model.addAttribute("carHistoryDTO", carMapper.map(carHistory));
-        } else {
-            model.addAttribute("carHistoryDTO", CarHistoryDTO.buildDefault());
-        }
-        return "car_history";
+    private void addCarHistoryAttribute(String carVin, Model model) {
+        CarHistoryDTO carHistoryDTO = Objects.nonNull(carVin) ?
+                carMapper.map(carService.findCarHistoryByVin(carVin)) :
+                CarHistoryDTO.buildDefault();
+
+        model.addAttribute("carHistoryDTO", carHistoryDTO);
     }
 }

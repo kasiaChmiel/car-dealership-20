@@ -2,8 +2,7 @@ package pl.zajavka.api.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 @AllArgsConstructor
@@ -11,7 +10,7 @@ public class HomeController {
 
      static final String HOME = "/";
 
-    @RequestMapping(value = HOME, method = RequestMethod.GET)
+    @GetMapping(value = HOME)
     public String homePage() {
         return "home";
     }
