@@ -11,19 +11,22 @@ import org.springframework.web.servlet.ModelAndView;
 import pl.zajavka.domain.exception.NotFoundException;
 import pl.zajavka.domain.exception.ProcessingException;
 
-
 import java.util.Optional;
 
+// TODO I would move Exception handler into separate package
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    public static final String ERROR = "error";
+    private static final String ERROR_MESSAGE = "errorMessage";
 
     @ExceptionHandler(Exception.class)
     public ModelAndView handleException(Exception ex) {
         String message = String.format("Other exception occurred: [%s]", ex.getMessage());
         log.error(message, ex);
-        ModelAndView modelView = new ModelAndView("error");
-        modelView.addObject("errorMessage", message);
+        ModelAndView modelView = new ModelAndView(ERROR);
+        modelView.addObject(ERROR_MESSAGE, message);
         return modelView;
     }
 
@@ -32,8 +35,8 @@ public class GlobalExceptionHandler {
     public ModelAndView handleNoResourceFound(NotFoundException ex) {
         String message = String.format("Could not find a resource: [%s]", ex.getMessage());
         log.error(message, ex);
-        ModelAndView modelView = new ModelAndView("error");
-        modelView.addObject("errorMessage", message);
+        ModelAndView modelView = new ModelAndView(ERROR);
+        modelView.addObject(ERROR_MESSAGE, message);
         return modelView;
     }
 
@@ -42,8 +45,8 @@ public class GlobalExceptionHandler {
     public ModelAndView handleException(ProcessingException ex) {
         String message = String.format("Processing exception occurred: [%s]", ex.getMessage());
         log.error(message, ex);
-        ModelAndView modelView = new ModelAndView("error");
-        modelView.addObject("errorMessage", message);
+        ModelAndView modelView = new ModelAndView(ERROR);
+        modelView.addObject(ERROR_MESSAGE, message);
         return modelView;
     }
     @ExceptionHandler(BindException.class)
@@ -53,8 +56,8 @@ public class GlobalExceptionHandler {
                 Optional.ofNullable(ex.getFieldError()).map(FieldError::getField).orElse(null),
                 Optional.ofNullable(ex.getFieldError()).map(FieldError::getRejectedValue).orElse(null));
         log.error(message, ex);
-        ModelAndView modelView = new ModelAndView("error");
-        modelView.addObject("errorMessage", message);
+        ModelAndView modelView = new ModelAndView(ERROR);
+        modelView.addObject(ERROR_MESSAGE, message);
         return modelView;
     }
 }

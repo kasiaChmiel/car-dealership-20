@@ -22,6 +22,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class CarServiceRequestService {
 
+    private static final Random RANDOM = new Random();
     private final MechanicService mechanicService;
     private final CarService carService;
     private final CustomerService customerService;
@@ -35,33 +36,23 @@ public class CarServiceRequestService {
         return carServiceRequestDAO.findAvailable();
     }
 
+    // TODO it's not perfect but better than it was with code duplication. It can be improved much more to get rid of if-else
     @Transactional
-    public void makeServiceRequest(CarServiceRequest serviceRequest) {
-        if (serviceRequest.getCar().shouldExistsInCarToBuy()) {
-            saveServiceRequestForExistingCar(serviceRequest);
+    public void makeServiceRequest(CarServiceRequest request) {
+        validate(request.getCar().getVin());
+
+        CarToService car;
+        Customer customer;
+
+        if (request.getCar().shouldExistsInCarToBuy()) {
+            car = carService.findCarToService(request.getCar().getVin())
+                    .orElse(findInCarToBuyAndSaveInCarToService(request.getCar()));
+            // TODO What's gonna happen with null customer?
+            customer = customerService.findCustomer(request.getCustomer().getEmail());
         } else {
-            saveServiceRequestForNewCar(serviceRequest);
+            car = carService.saveCarToService(request.getCar());
+            customer = customerService.saveCustomer(request.getCustomer());
         }
-    }
-
-    private void saveServiceRequestForExistingCar(CarServiceRequest request) {
-        validate(request.getCar().getVin());
-
-        CarToService car = carService.findCarToService(request.getCar().getVin())
-            .orElse(findInCarToBuyAndSaveInCarToService(request.getCar()));
-        Customer customer = customerService.findCustomer(request.getCustomer().getEmail());
-
-        CarServiceRequest carServiceRequest = buildCarServiceRequest(request, car, customer);
-        Set<CarServiceRequest> existingCarServiceRequests = customer.getCarServiceRequests();
-        existingCarServiceRequests.add(carServiceRequest);
-        customerService.saveServiceRequest(customer.withCarServiceRequests(existingCarServiceRequests));
-    }
-
-    private void saveServiceRequestForNewCar(CarServiceRequest request) {
-        validate(request.getCar().getVin());
-
-        CarToService car = carService.saveCarToService(request.getCar());
-        Customer customer = customerService.saveCustomer(request.getCustomer());
 
         CarServiceRequest carServiceRequest = buildCarServiceRequest(request, car, customer);
         Set<CarServiceRequest> existingCarServiceRequests = customer.getCarServiceRequests();
@@ -112,7 +103,7 @@ public class CarServiceRequestService {
 
     @SuppressWarnings("SameParameterValue")
     private int randomInt(int min, int max) {
-        return new Random().nextInt(max - min) + min;
+        return RANDOM.nextInt(max - min) + min;
     }
 
     @Transactional

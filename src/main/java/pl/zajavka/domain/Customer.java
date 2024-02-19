@@ -31,6 +31,10 @@ public class Customer {
         return Objects.isNull(invoices) ? new HashSet<>() : invoices;
     }
 
+    public void addInvoice(Invoice newInvoice) {
+        this.invoices.add(newInvoice);
+    }
+
     public Set<CarServiceRequest> getCarServiceRequests() {
         return Objects.isNull(carServiceRequests) ? new HashSet<>() : carServiceRequests;
     }

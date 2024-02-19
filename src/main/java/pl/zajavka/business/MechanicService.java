@@ -9,7 +9,6 @@ import pl.zajavka.domain.Mechanic;
 import pl.zajavka.domain.exception.NotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -25,12 +24,10 @@ public class MechanicService {
         return availableMechanics;
     }
 
+    // TODO nicer way
     @Transactional
     public Mechanic findMechanic(String pesel) {
-        Optional<Mechanic> mechanic = mechanicDAO.findByPesel(pesel);
-        if (mechanic.isEmpty()) {
-            throw new NotFoundException("Could not find mechanic by pesel: [%s]".formatted(pesel));
-        }
-        return mechanic.get();
+        return mechanicDAO.findByPesel(pesel)
+                .orElseThrow(() -> new NotFoundException("Could not find mechanic by pesel: [%s]".formatted(pesel)));
     }
 }

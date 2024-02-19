@@ -18,7 +18,7 @@ public class CarServiceProcessingRequest {
     String serviceCode;
     Integer hours;
     String comment;
-    Boolean done;
+    boolean done;
 
     public boolean partNotIncluded() {
         return Objects.isNull(getPartSerialNumber())

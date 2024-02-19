@@ -84,7 +84,7 @@ public class MechanicController {
         }
         CarServiceProcessingRequest request = carServiceRequestMapper.map(dto);
         carServiceProcessingService.process(request);
-        if (dto.getDone()) {
+        if (dto.isDone()) {
             return "mechanic_service_done";
         } else {
             modelMap.addAllAttributes(prepareNecessaryData());

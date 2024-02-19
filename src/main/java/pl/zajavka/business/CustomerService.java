@@ -7,8 +7,6 @@ import pl.zajavka.business.dao.CustomerDAO;
 import pl.zajavka.domain.Customer;
 import pl.zajavka.domain.exception.NotFoundException;
 
-import java.util.Optional;
-
 @Service
 @AllArgsConstructor
 public class CustomerService {
@@ -20,13 +18,11 @@ public class CustomerService {
         customerDAO.issueInvoice(customer);
     }
 
+    // TODO nicer way
     @Transactional
     public Customer findCustomer(String email) {
-        Optional<Customer> customer = customerDAO.findByEmail(email);
-        if (customer.isEmpty()) {
-            throw new NotFoundException("Could not find customer by email: [%s]".formatted(email));
-        }
-        return customer.get();
+        return customerDAO.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Could not find customer by email: [%s]".formatted(email)));
     }
 
     @Transactional
